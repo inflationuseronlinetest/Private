@@ -1,0 +1,30 @@
+const express = require("express");
+const http = require("http");
+const WebSocket = require("ws");
+const cors = require("cors");
+
+const app = express();
+app.use(cors());
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+let onlineUsers = 0;
+
+wss.on("connection", (ws) => {
+    onlineUsers++;
+    console.log("New user connected. Users online:", onlineUsers);
+
+    ws.on("close", () => {
+        onlineUsers--;
+        console.log("User disconnected. Users online:", onlineUsers);
+    });
+});
+
+app.get("/useronline", (req, res) => {
+    res.json({ onlineUsers });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
